@@ -6,7 +6,7 @@ using System.Web;
 namespace TLWebAPI.Models
 {
     public class ImageTag
-    {
+    {//
         public string ImageTagName { get; set; }
     }
 }
