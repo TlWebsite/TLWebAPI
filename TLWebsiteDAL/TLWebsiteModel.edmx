@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="TLWebSiteDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Image">
+          <Key>
+            <PropertyRef Name="PKID" />
+          </Key>
+          <Property Name="PKID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ImageName" Type="varchar" MaxLength="45" />
+          <Property Name="CreatedDate" Type="datetime" />
+          <Property Name="ImageID" Type="varchar" MaxLength="100" />
+          <Property Name="ImageTypeID" Type="int" />
+          <Property Name="ImageURL" Type="varchar(max)" />
+          <Property Name="ImageDescription" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="Image_ImageTag">
+          <Key>
+            <PropertyRef Name="ImagePKID" />
+            <PropertyRef Name="ImageTagPKID" />
+          </Key>
+          <Property Name="ImagePKID" Type="int" Nullable="false" />
+          <Property Name="ImageTagPKID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ImageTag">
+          <Key>
+            <PropertyRef Name="PKID" />
+          </Key>
+          <Property Name="PKID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ImageTagName" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="ImageType">
+          <Key>
+            <PropertyRef Name="PKID" />
+          </Key>
+          <Property Name="PKID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ImageTypeName" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <Association Name="FK_ImagePKID">
+          <End Role="Image" Type="Self.Image" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Image_ImageTag" Type="Self.Image_ImageTag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Image">
+              <PropertyRef Name="PKID" />
+            </Principal>
+            <Dependent Role="Image_ImageTag">
+              <PropertyRef Name="ImagePKID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ImageTagID">
+          <End Role="ImageTag" Type="Self.ImageTag" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Image_ImageTag" Type="Self.Image_ImageTag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ImageTag">
+              <PropertyRef Name="PKID" />
+            </Principal>
+            <Dependent Role="Image_ImageTag">
+              <PropertyRef Name="ImageTagPKID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ImageTypeID">
+          <End Role="ImageType" Type="Self.ImageType" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Image" Type="Self.Image" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ImageType">
+              <PropertyRef Name="PKID" />
+            </Principal>
+            <Dependent Role="Image">
+              <PropertyRef Name="ImageTypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TLWebSiteDBModelStoreContainer">
+          <EntitySet Name="Image" EntityType="Self.Image" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Image_ImageTag" EntityType="Self.Image_ImageTag" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ImageTag" EntityType="Self.ImageTag" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ImageType" EntityType="Self.ImageType" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_ImagePKID" Association="Self.FK_ImagePKID">
+            <End Role="Image" EntitySet="Image" />
+            <End Role="Image_ImageTag" EntitySet="Image_ImageTag" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ImageTagID" Association="Self.FK_ImageTagID">
+            <End Role="ImageTag" EntitySet="ImageTag" />
+            <End Role="Image_ImageTag" EntitySet="Image_ImageTag" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ImageTypeID" Association="Self.FK_ImageTypeID">
+            <End Role="ImageType" EntitySet="ImageType" />
+            <End Role="Image" EntitySet="Image" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TLWebSiteDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Image">
+          <Key>
+            <PropertyRef Name="PKID" />
+          </Key>
+          <Property Name="PKID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ImageName" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+          <Property Name="ImageID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ImageTypeID" Type="Int32" />
+          <Property Name="ImageURL" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ImageDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="ImageType" Relationship="Self.FK_ImageTypeID" FromRole="Image" ToRole="ImageType" />
+          <NavigationProperty Name="ImageTags" Relationship="Self.Image_ImageTag" FromRole="Image" ToRole="ImageTag" />
+        </EntityType>
+        <EntityType Name="ImageTag">
+          <Key>
+            <PropertyRef Name="PKID" />
+          </Key>
+          <Property Name="PKID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ImageTagName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Images" Relationship="Self.Image_ImageTag" FromRole="ImageTag" ToRole="Image" />
+        </EntityType>
+        <EntityType Name="ImageType">
+          <Key>
+            <PropertyRef Name="PKID" />
+          </Key>
+          <Property Name="PKID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ImageTypeName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Images" Relationship="Self.FK_ImageTypeID" FromRole="ImageType" ToRole="Image" />
+        </EntityType>
+        <Association Name="FK_ImageTypeID">
+          <End Role="ImageType" Type="Self.ImageType" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Image" Type="Self.Image" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ImageType">
+              <PropertyRef Name="PKID" />
+            </Principal>
+            <Dependent Role="Image">
+              <PropertyRef Name="ImageTypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Image_ImageTag">
+          <End Role="Image" Type="Self.Image" Multiplicity="*" />
+          <End Role="ImageTag" Type="Self.ImageTag" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="TLWebSiteDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Images" EntityType="Self.Image" />
+          <EntitySet Name="ImageTags" EntityType="Self.ImageTag" />
+          <EntitySet Name="ImageTypes" EntityType="Self.ImageType" />
+          <AssociationSet Name="FK_ImageTypeID" Association="Self.FK_ImageTypeID">
+            <End Role="ImageType" EntitySet="ImageTypes" />
+            <End Role="Image" EntitySet="Images" />
+          </AssociationSet>
+          <AssociationSet Name="Image_ImageTag" Association="Self.Image_ImageTag">
+            <End Role="Image" EntitySet="Images" />
+            <End Role="ImageTag" EntitySet="ImageTags" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TLWebSiteDBModelStoreContainer" CdmEntityContainer="TLWebSiteDBEntities">
+          <EntitySetMapping Name="Images">
+            <EntityTypeMapping TypeName="TLWebSiteDBModel.Image">
+              <MappingFragment StoreEntitySet="Image">
+                <ScalarProperty Name="PKID" ColumnName="PKID" />
+                <ScalarProperty Name="ImageName" ColumnName="ImageName" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="ImageID" ColumnName="ImageID" />
+                <ScalarProperty Name="ImageTypeID" ColumnName="ImageTypeID" />
+                <ScalarProperty Name="ImageURL" ColumnName="ImageURL" />
+                <ScalarProperty Name="ImageDescription" ColumnName="ImageDescription" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ImageTags">
+            <EntityTypeMapping TypeName="TLWebSiteDBModel.ImageTag">
+              <MappingFragment StoreEntitySet="ImageTag">
+                <ScalarProperty Name="PKID" ColumnName="PKID" />
+                <ScalarProperty Name="ImageTagName" ColumnName="ImageTagName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ImageTypes">
+            <EntityTypeMapping TypeName="TLWebSiteDBModel.ImageType">
+              <MappingFragment StoreEntitySet="ImageType">
+                <ScalarProperty Name="PKID" ColumnName="PKID" />
+                <ScalarProperty Name="ImageTypeName" ColumnName="ImageTypeName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="Image_ImageTag" TypeName="TLWebSiteDBModel.Image_ImageTag" StoreEntitySet="Image_ImageTag">
+            <EndProperty Name="Image">
+              <ScalarProperty Name="PKID" ColumnName="ImagePKID" />
+            </EndProperty>
+            <EndProperty Name="ImageTag">
+              <ScalarProperty Name="PKID" ColumnName="ImageTagPKID" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
