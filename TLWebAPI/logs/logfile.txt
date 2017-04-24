@@ -1,0 +1,2 @@
+2017-04-24 19:42:28.7450 TLWebsite Logger GetALlImages Method Invoked
+2017-04-24 19:42:30.6130 TLWebsite Logger GetAllImages Method Successfully Returned All Image elements from the database
