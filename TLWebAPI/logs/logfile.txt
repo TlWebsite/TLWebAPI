@@ -8,3 +8,9 @@
 2017-04-24 20:48:22.6180 TLWebsite Logger GetImagesByType Method Successfully returned 1 images given typename: Memes
 2017-04-24 20:49:51.7400 TLWebsite Logger GetAllImages Method Invoked
 2017-04-24 20:49:53.7640 TLWebsite Logger GetAllImages Method Successfully Returned All 1 Image elements from the database
+2017-04-24 22:17:55.1390 TLWebsite Logger GetImage Method Invoked with paramter Memes_1
+2017-04-24 22:17:56.8690 TLWebsite Logger GetImage Method Successfully Returned The Image With The ID Memes_1
+2017-04-24 22:20:38.6330 TLWebsite Logger GetAllImages Method Invoked
+2017-04-24 22:20:39.4940 TLWebsite Logger GetAllImages Method Successfully Returned All 1 Image elements from the database
+2017-04-24 22:20:58.3070 TLWebsite Logger GetImagesByTag Method invoked given tagname: Silly
+2017-04-24 22:20:58.8180 TLWebsite Logger GetImagesByTag Method Successfully returned 1 images given tagname: Silly
