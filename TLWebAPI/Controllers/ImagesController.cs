@@ -40,7 +40,7 @@ namespace TLWebAPI.Controllers
         [ResponseType(typeof(List<Model.Image>))]
         public async Task<HttpResponseMessage> GetAllImages()
         {
-            NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", "GetALlImages Method Invoked"));
+            NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", "GetAllImages Method Invoked"));
             try
             {
                 var ImageList = await db.Images.ToListAsync();
@@ -67,17 +67,35 @@ namespace TLWebAPI.Controllers
             }
         }
 
-        // GET: api/Images/5
-        [ResponseType(typeof(DAL.Image))]
-        public async Task<IHttpActionResult> GetImage(int id)
+        /// <summary>
+        /// Will return the image information given a specific Image ID
+        /// </summary>
+        /// <param name="id">string ImageID</param>
+        /// <endpoint>HTTPGet: api/GetImage/?id={id}</endpoint>
+        /// <returns>Image Model</returns>
+        [ActionName("GetImage")]
+        [ResponseType(typeof(Model.Image))]
+        public async Task<HttpResponseMessage> GetImage(string id)
         {
-            DAL.Image image = await db.Images.FindAsync(id);
-            if (image == null)
+            NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImage Method Invoked with paramter {id}"));
+            try
             {
-                return NotFound();
+                var image = await db.Images.Where(x => x.ImageID == id).ToListAsync();
+                if (image == null || image.Count <= 0) //image not found for given id
+                {
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImage Method Was not able to return an image for paramter {id}"));
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Image Not Found");
+                }
+                //return image given id
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImage Method Successfully Returned The Image With The ID {id}"));
+                return Request.CreateResponse(HttpStatusCode.OK, Mapper.Map<Model.Image>(image.FirstOrDefault()));
+            }catch(Exception ex)
+            {
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImage Method Encountered the following exception: {ex.Message}/n{ex.StackTrace}"));
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
 
-            return Ok(image);
+  
         }
 
 
