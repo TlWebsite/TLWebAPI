@@ -41,3 +41,6 @@ CONSTRAINT FK_ImageTagID Foreign Key (ImageTagPKID) REFERENCES [ImageTag](PKID)
 	ON DELETE CASCADE    
 	ON UPDATE CASCADE ,
 )
+select * From Imagetype
+
+Update [Image] Set ImageURL='https://github.com/TlWebsite/TLWebAPI/blob/master/Pictures/Internal%20Struggles.png?raw=true' where PKID=1
