@@ -214,12 +214,12 @@ namespace TLWebAPI.Controllers
         ///  Will Return a list of image information that falls within the specified tags (Requires at least one of the specified tags)
         /// </summary>
         /// <param name="tagNames">(from post body)String Array ImageTagNames</param>
-        /// <endpoint>HTTPPost: api/Images/GetImagesByMultipleTags (POST TO ALLOW FROM BODY PARAMETER) </endpoint>
+        /// <endpoint>HTTPPost: api/Images/GetImagesWithOneOfMultipleTags (POST TO ALLOW FROM BODY PARAMETER) </endpoint>
         /// <returns>List of Image Models</returns>
-        [ActionName("GetImagesByMultipleTags")]
         [HttpPost]
+        [ActionName("GetImagesWithOneOfMultipleTags")]
         [ResponseType(typeof(List<Model.Image>))]
-        public async Task<HttpResponseMessage> GetImagesByMultipleTags([FromBody]List<string> tagNames)
+        public async Task<HttpResponseMessage> GetImagesWithOneOfMultipleTags([FromBody]List<string> tagNames)
         {
             NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesByMultipleTags Method invoked given tagnames: {tagNames}"));
             try
