@@ -21,14 +21,69 @@ namespace TLWebAPI.Controllers
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ImagesController : ApiController
     {
-        //Get All Types
-        //Get All Tags
-
         HelperMethods helper = new HelperMethods();
 
         private DAL.TLWebSiteDBEntities db = new DAL.TLWebSiteDBEntities();
 
-        
+        /// <summary>
+        ///  Method will return all image types that are in the database
+        /// </summary>
+        /// <endpoint>HTTPGet: api/Images/GetAllImageTypes</endpoint>
+        /// <returns>List of tag models</returns>
+        [ActionName("GetAllImageTypes")]
+        [ResponseType(typeof(List<Model.ImageType>))]
+        public async Task<HttpResponseMessage> GetAllImageTypes()
+        {
+            NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", "GetAllImageTypes Method Invoked"));
+            try
+            {
+                var ImageTypeList = await db.ImageTypes.ToListAsync();
+                if (ImageTypeList == null || ImageTypeList.Count <= 0) //No ImageTypes Found
+                {
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", "GetAllImageTypes Method was not able to find any ImageTypes"));
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "No ImageTypes Found");
+                }
+                //Serialized all found ImageTypes into ImageType Models
+                var SerializedImageTypeList = helper.SerializeImageTypeList(ImageTypeList);
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetAllImageTypes Method Successfully found and returned {SerializedImageTypeList.Count} Types"));
+                return Request.CreateResponse(HttpStatusCode.OK, SerializedImageTypeList);
+            }
+            catch (Exception ex)
+            {
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", "GetAllImageTypes Method the following exception: {ex.Message}/n {ex.StackTrace}"));
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        ///  Method will return all tags that are in the database
+        /// </summary>
+        /// <endpoint>HTTPGet: api/Images/GetAllImageTags</endpoint>
+        /// <returns>List of tag models</returns>
+        [ActionName("GetAllImageTags")]
+        [ResponseType(typeof(List<Model.ImageTag>))]
+        public async Task<HttpResponseMessage> GetAllImageTags()
+        {
+            NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", "GetAllImageTags Method Invoked"));
+            try
+            {
+                var ImageTagList = await db.ImageTags.ToListAsync();
+                if (ImageTagList==null|| ImageTagList.Count<=0) //No ImageTags Found
+                {
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", "GetAllImageTags Method was not able to find any ImageTags"));
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "No ImageTags Found");
+                }
+                //Serialized all found tags into Tag Models
+                var SerializedImageTagList = helper.SerializeImageTagList(ImageTagList);
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetAllImageTags Method Successfully found and returned {SerializedImageTagList.Count} Tags"));
+                return Request.CreateResponse(HttpStatusCode.OK, SerializedImageTagList);
+            }catch(Exception ex)
+            {
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", "GetAllImageTags Method the following exception: {ex.Message}/n {ex.StackTrace}"));
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
 
 
         /// <summary>
