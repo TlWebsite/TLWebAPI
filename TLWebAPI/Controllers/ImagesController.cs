@@ -22,7 +22,6 @@ namespace TLWebAPI.Controllers
     public class ImagesController : ApiController
     {
         HelperMethods helper = new HelperMethods();
-
         private DAL.TLWebSiteDBEntities db = new DAL.TLWebSiteDBEntities();
 
         /// <summary>
@@ -55,7 +54,6 @@ namespace TLWebAPI.Controllers
             }
         }
 
-
         /// <summary>
         ///  Method will return all tags that are in the database
         /// </summary>
@@ -84,7 +82,6 @@ namespace TLWebAPI.Controllers
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
         }
-
 
         /// <summary>
         /// Will return all images from the database
@@ -213,22 +210,29 @@ namespace TLWebAPI.Controllers
         /// <summary>
         ///  Will Return a list of image information that falls within the specified tags (Requires at least one of the specified tags)
         /// </summary>
-        /// <param name="tagNames">(from post body)String Array ImageTagNames</param>
-        /// <endpoint>HTTPPost: api/Images/GetImagesByMultipleTags (POST TO ALLOW FROM BODY PARAMETER) </endpoint>
+        /// <param name="tagNames">(from request body)String List of ImageTagNames</param>
+        /// <endpoint>HTTPPost: api/Images/GetImagesWithOneOfMultipleTags (POST TO ALLOW FROM BODY PARAMETER) </endpoint>
         /// <returns>List of Image Models</returns>
-        [ActionName("GetImagesByMultipleTags")]
         [HttpPost]
+        [ActionName("GetImagesWithOneOfMultipleTags")]
         [ResponseType(typeof(List<Model.Image>))]
-        public async Task<HttpResponseMessage> GetImagesByMultipleTags([FromBody]List<string> tagNames)
+        public async Task<HttpResponseMessage> GetImagesWithOneOfMultipleTags([FromBody]List<string> tagNames)
         {
-            NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesByMultipleTags Method invoked given tagnames: {tagNames}"));
+            NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithOneOfMultipleTags Method invoked given tagnames: {tagNames}"));
             try
             {
+                //check to make sure tagNames isn't empty
+                if(tagNames.Count<=0||tagNames==null)
+                {
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithOneOfMultipleTags Method was provided an invalid tag list"));
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Empty or invalid Tags provided");
+                }
+
                 // grab full list of tags at once to avoid multiple calls to database.  
                 var TagList = await db.ImageTags.ToListAsync();
                 if (TagList==null ||TagList.Count<=0) //No tags found
                 {
-                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesByMultipleTags Method did not recieve any tags from the database"));
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithOneOfMultipleTags Method did not recieve any tags from the database"));
                     return Request.CreateResponse(HttpStatusCode.BadRequest, "Tag List Not Found");
                 }
                 List<DAL.Image> ImageList = new List<DAL.Image>();
@@ -238,7 +242,7 @@ namespace TLWebAPI.Controllers
                     var TempTag = TagList.Where(x => x.ImageTagName == tag).ToList();
                     if (TempTag.Count<=0 ||TempTag==null)
                     {
-                        NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesByMultipleTags Method could not find tag: {tag}"));
+                        NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithOneOfMultipleTags Method could not find tag: {tag}"));
                         return Request.CreateResponse(HttpStatusCode.BadRequest, $"Tag: {tag} not a valid tag ");
                     }
 
@@ -246,15 +250,90 @@ namespace TLWebAPI.Controllers
                 }
                 //return serialized imagelist of only unique values.  List will contain image information of any image that contains at least one of the specified tags.
                 var SerializedImageList = helper.SerializeImageList(ImageList.Distinct().ToList());
-                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesByMultipleTags Method successfully returned image information given tagnames: {tagNames}"));
+
+                if(SerializedImageList==null||SerializedImageList.Count<=0) //No Images Found for the given tags
+                {
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithOneOfMultipleTags Method did not find any images for the tags provided"));
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "No Images found that contain any of the tags provided");
+                }
+
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithOneOfMultipleTags Method successfully returned image information given tagnames: {tagNames}"));
                 return Request.CreateResponse(HttpStatusCode.OK, SerializedImageList);
             }
             catch (Exception ex)
             {
-                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesByMultipleTags Method encountered thethe following exception: {ex.Message}/n{ex.StackTrace}"));
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithOneOfMultipleTags Method encountered thethe following exception: {ex.Message}/n{ex.StackTrace}"));
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
         }
 
+        /// <summary>
+        ///   Will Return a list of image information that falls within the specified tags (Requires ALL of the specified tags
+        /// </summary>
+        /// <param name="tagNames">(from request body)String List of ImageTagNames</param>
+        /// <endpoint>HTTPPost: api/Images/GetImagesWithAllOfMultipleTags (POST TO ALLOW FROM BODY PARAMETER)</endpoint>
+        /// <returns>List of Image Models</returns>
+        [HttpPost]
+        [ActionName("GetImagesWithAllOfMultipleTags")]
+        [ResponseType(typeof(List<Model.Image>))]
+        public async Task<HttpResponseMessage> GetImagesWithAllOfMultipleTags([FromBody]List<string> tagNames)
+        {
+            NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithAllOfMultipleTags Method invoked given tagnames: {tagNames}"));
+            try
+            {
+                // check to make sure tagNames isn't empty
+                if (tagNames.Count<=0||tagNames==null)
+                {
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithAllOfMultipleTags Method was provided an invalid tag list"));
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Empty or invalid Tags provided");
+                }
+                //grab full list of Images, grab at once to reduce calls to database
+                var Images = await db.Images.ToListAsync();
+
+                if (Images.Count<=0||Images==null)//DB did not provide any images
+                {
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithAllOfMultipleTags Method did not recieve any tags from the database"));
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Database did not contain any images");
+                }
+                List<Models.Image> SerializedImageList = new List<Models.Image>();
+
+                //Loop through each image and check the images tags.
+                foreach (var image in Images)
+                {
+                    int tagcount = 0;
+                    //will loop through each tag in the current image and see if that tag is in the image list.  if it is it will add to the image count.
+                    foreach (var imagetag in image.ImageTags)
+                    {
+                        foreach (var tag in tagNames)
+                        {
+                            if (tag == imagetag.ImageTagName)
+                            {
+                                tagcount++;
+                                break;
+                            }
+                        }
+                    }
+                    if (tagcount == tagNames.Count)// contains all tags in provided taglist
+                    {
+
+                        SerializedImageList.Add(Mapper.Map<Models.Image>(image));
+                    }
+                }
+                if (SerializedImageList.Count<=0||SerializedImageList==null)
+                {
+                    NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithAllOfMultipleTags Method did not find any images that contain all of the tags provided"));
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "No Images found that contain all tags provided");
+                }
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithAllOfMultipleTags Method successfully returned image information given tagnames: {tagNames}"));
+                return Request.CreateResponse(HttpStatusCode.OK, SerializedImageList);
+            }catch(Exception ex)
+            {
+                NLogConfig.logger.Log(new LogEventInfo(LogLevel.Info, "TLWebsite Logger", $"GetImagesWithAllOfMultipleTags Method encountered thethe following exception: {ex.Message}/n{ex.StackTrace}"));
+                return Request.CreateResponse(HttpStatusCode.OK, ex.Message);
+            }
+
+            
+        }
+      
     }
 }
